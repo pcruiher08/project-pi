@@ -18,7 +18,6 @@ class MapScreen extends Component {
 
   onLocationChange(event) {
     const nativeEvent = event.nativeEvent;
-    console.log(nativeEvent);
     this.map.animateToRegion(
       {
         latitude: nativeEvent.coordinate.latitude,
