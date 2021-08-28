@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, StyleSheet } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Circle } from "react-native-maps";
 import { getEvents } from "../services/events";
 
 class MapScreen extends Component {
@@ -12,6 +12,7 @@ class MapScreen extends Component {
         latitude: 37.78825,
         longitude: -122.4324,
       },
+      circles: [],
     };
   }
 
@@ -21,7 +22,13 @@ class MapScreen extends Component {
         this.state.coordinates.latitude,
         this.state.coordinates.longitude
       ).then((events) => {
-        console.log(events);
+        if (events.length > 0) {
+          let newCircles = [];
+          events.forEach((event) => {
+            newCircles.push({ lat: event.latitude, long: event.longitude });
+          });
+          this.setState({ circles: newCircles });
+        }
       });
     }, 5000);
   }
@@ -62,7 +69,19 @@ class MapScreen extends Component {
           onUserLocationChange={this.onLocationChange}
           showsUserLocation={true}
           followsUserLocation={true}
-        />
+        >
+          {this.state.circles.map((circle, index) => {
+            return (
+              <Circle
+                key={index}
+                center={{ latitude: circle.lat, longitude: circle.long }}
+                radius={100}
+                strokeColor="#B62304"
+                fillColor="rgba(182,35,4,0.5)"
+              />
+            );
+          })}
+        </MapView>
       </View>
     );
   }
