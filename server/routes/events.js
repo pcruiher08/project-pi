@@ -7,6 +7,9 @@ let { EventController } = require("../models/event");
 let ServerError = require("../error");
 const { type } = require("os");
 
+let radius = 0.005;
+let timeDiff = 30; //seconds
+
 router.get("/all", jsonParser, (req, res) => {
     EventController.getAll()
         .then((events) => {
@@ -60,15 +63,17 @@ router.post("/create", jsonParser, (req, res) => {
 router.get("/fetch", jsonParser, (req, res) => {
     let lat = req.query.lat;
     let lon = req.query.lon;
+    let r = req.query.r || radius;
+    let seconds = req.query.seconds || timeDiff;
 
     if (lat == undefined || lon == undefined) {
         res.statusMessage = "Latitute and longitude missing to fetch events";
         return res.status(406).send();
     }
 
-    let now = Date.now();
+    let start = Date.now() - seconds * 1000;
 
-    EventController.getByLocation(lat, lon, now)
+    EventController.getByLocation(lat, lon, r, start)
         .then((events) => {
             res.status(200).json(events);
         })

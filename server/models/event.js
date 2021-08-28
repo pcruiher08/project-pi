@@ -36,10 +36,21 @@ let EventController = {
                 throw new ServerError(500, "Database error");
             });
     },
-    getByLocation: function (lat, lon, now) {
-        return Event.find({})
+    getByLocation: function (lat, lon, r, start) {
+        return Event.find({ datetime: { $gte: start } })
             .then((e) => {
-                return e;
+                events = [];
+                e.forEach((ev) => {
+                    let distance = Math.sqrt(
+                        Math.pow(ev.latitude - lat, 2) +
+                            Math.pow(ev.longitude - lon, 2)
+                    );
+
+                    if (distance < r) {
+                        events.push(ev);
+                    }
+                });
+                return events;
             })
             .catch((error) => {
                 console.log(error);
