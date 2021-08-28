@@ -20,7 +20,9 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-maps": "^0.28.0",
-    "react-native-web": "~0.13.12"
+    "react-native-push-notification": "^8.0.1",
+    "react-native-web": "~0.13.12",
+    "expo-notifications": "~0.12.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

@@ -4,6 +4,8 @@ import MapView from "react-native-maps";
 import * as Location from "expo-location";
 
 const MapScreen = (props) => {
+
+
   const [mapRegion, setMapRegion] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -20,6 +22,8 @@ const MapScreen = (props) => {
       longitudeDelta: 0.001,
     });
   };
+
+
 
   return (
     <View styles={styles.screen}>
