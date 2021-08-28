@@ -83,65 +83,60 @@ router.post("/create", jsonParser, (req, res) => {
         });
 });
 
-router.put(
-    "/update/:id",
-    jsonParser,
-    middleware.isLoggedIn,
-    async (req, res) => {
-        let id = req.params.id;
+router.put("/update/:id", jsonParser, async (req, res) => {
+    let id = req.params.id;
 
-        if (id == undefined) {
-            res.statusMessage = "No id given to update";
-            return res.status(406).send();
-        }
-
-        UserController.getById(id)
-            .then((user) => {
-                if (user == null) {
-                    throw new ServerError(404, "ID not found");
-                }
-                let { name, email, profilePicture } = req.body;
-
-                if (
-                    name == undefined &&
-                    email == undefined &&
-                    profilePicture == undefined
-                ) {
-                    res.statusMessage = "No parameters to modify in update";
-                    return res.status(409).send();
-                }
-
-                let newUser = {};
-
-                if (name != undefined) {
-                    newUser.name = name;
-                }
-                if (profilePicture != undefined) {
-                    newUser.profilePicture = profilePicture;
-                }
-                if (email != undefined) {
-                    newUser.email = profilePicture;
-                }
-
-                return UserController.update(id, newUser);
-            })
-            .then((nu) => {
-                return res.status(202).json(nu);
-            })
-            .catch((error) => {
-                console.log(error);
-                if (error.code === 404) {
-                    res.statusMessage = "User not found with given id";
-                    return res.status(404).send();
-                } else {
-                    res.statusMessage = "Database error";
-                    return res.status(500).send();
-                }
-            });
+    if (id == undefined) {
+        res.statusMessage = "No id given to update";
+        return res.status(406).send();
     }
-);
 
-router.delete("/delete/:id", jsonParser, middleware.isLoggedIn, (req, res) => {
+    UserController.getById(id)
+        .then((user) => {
+            if (user == null) {
+                throw new ServerError(404, "ID not found");
+            }
+            let { name, email, profilePicture } = req.body;
+
+            if (
+                name == undefined &&
+                email == undefined &&
+                profilePicture == undefined
+            ) {
+                res.statusMessage = "No parameters to modify in update";
+                return res.status(409).send();
+            }
+
+            let newUser = {};
+
+            if (name != undefined) {
+                newUser.name = name;
+            }
+            if (profilePicture != undefined) {
+                newUser.profilePicture = profilePicture;
+            }
+            if (email != undefined) {
+                newUser.email = profilePicture;
+            }
+
+            return UserController.update(id, newUser);
+        })
+        .then((nu) => {
+            return res.status(202).json(nu);
+        })
+        .catch((error) => {
+            console.log(error);
+            if (error.code === 404) {
+                res.statusMessage = "User not found with given id";
+                return res.status(404).send();
+            } else {
+                res.statusMessage = "Database error";
+                return res.status(500).send();
+            }
+        });
+});
+
+router.delete("/delete/:id", jsonParser, (req, res) => {
     let id = req.params.id;
 
     if (id == undefined) {
