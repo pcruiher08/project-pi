@@ -27,7 +27,7 @@ export async function login(email, password) {
         })
         .then(responseJSON => {
             storeToken(responseJSON.token);
-            return {success: true, user: responseJSON}
+            return {success: true, user:{name: responseJSON.name, id: responseJSON.id}}
         })
 }
 
@@ -41,3 +41,25 @@ const storeToken = async (token) => {
       throw e;
     }
   };
+
+  export async function checkIsAuthenticated() {
+    let token =  await AsyncStorage.getItem("@token");
+
+    let url = `${SERVER_URL}/auth/validate/${token}`;
+    let settings = {
+        method: "GET",   
+    }
+
+    return fetch(url, settings)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+
+            throw new Error();
+        })
+        .then(responseJSON => {
+            return {success: true, user: {name: responseJSON.name, id: responseJSON.id}};
+        })
+    
+} 

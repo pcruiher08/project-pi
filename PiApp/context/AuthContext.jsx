@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { login } from "../services/auth";
+import { login, checkIsAuthenticated } from "../services/auth";
 
 export const AuthContext = React.createContext({});
 
@@ -9,7 +9,7 @@ export default function Auth({ children }) {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    //checkAuth();
+    checkAuth();
   }, []);
 
   const authLogin = async (email, password) => {
@@ -53,12 +53,24 @@ export default function Auth({ children }) {
     }
   };
 
-  /*
   const checkAuth = async () => {
-    
-        
+    //setIsAuthenticated(true);
+    checkIsAuthenticated()
+        .then((result) => {
+            //console.log("Result auth", result);
+            if (result.success) {
+                setUser(result.user);
+                setIsSignedIn(true);
+            } else {
+              setIsSignedIn(false);
+                return false;
+            }
+        })
+        .catch(err => {
+          console.log(err);
+            setIsSignedIn(false);
+        })  
 }
-*/
 
   return (
     <AuthContext.Provider
@@ -66,6 +78,7 @@ export default function Auth({ children }) {
         authLogin,
         authLogout,
         storeUser,
+        checkAuth,
         user,
         isSignedIn,
       }}
