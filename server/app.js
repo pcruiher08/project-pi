@@ -25,14 +25,6 @@ for (route of routes) {
     app.use(`/${route}`, require(`./routes/${route}`));
 }
 
-/*
-// Routes
-app.use("/auth", require("./routes/auth"));
-app.use("/users", require("./routes/users"));
-app.use("/cameras", require("./routes/cameras"));
-app.use("/events", require("./routes/events"));
-*/
-
 let server;
 
 function runServer(port, databaseUrl) {
