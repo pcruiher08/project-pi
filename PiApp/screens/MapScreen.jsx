@@ -1,28 +1,49 @@
 import React, { Component } from "react";
 import { View, StyleSheet } from "react-native";
 import MapView from "react-native-maps";
-
+import { getEvents } from "../services/events";
 
 class MapScreen extends Component {
   constructor(props) {
     super(props);
     this.onLocationChange = this.onLocationChange.bind(this);
     this.state = {
-      region: {
+      coordinates: {
         latitude: 37.78825,
         longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
       },
     };
   }
 
+  componentDidMount() {
+    this.interval = setInterval(() => {
+      getEvents(
+        this.state.coordinates.latitude,
+        this.state.coordinates.longitude
+      ).then((events) => {
+        console.log(events);
+      });
+    }, 5000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
   onLocationChange(event) {
     const nativeEvent = event.nativeEvent;
+    const lat = nativeEvent.coordinate.latitude;
+    const long = nativeEvent.coordinate.longitude;
+    this.setState({
+      coordinates: {
+        latitude: lat,
+        longitude: long,
+      },
+    });
     this.map.animateToRegion(
       {
-        latitude: nativeEvent.coordinate.latitude,
-        longitude: nativeEvent.coordinate.longitude,
+        latitude: lat,
+        longitude: long,
         latitudeDelta: 0.002,
         longitudeDelta: 0.002,
       },
