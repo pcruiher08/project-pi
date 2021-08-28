@@ -18,6 +18,8 @@ let authUsers = require("./routes/users");
 let { DATABASE_URL, PORT } = require("./config");
 let middleware = require("./middleware");
 
+console.log(DATABASE_URL);
+
 app.use(cors());
 app.use(morgan("dev"));
 
