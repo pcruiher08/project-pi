@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../screens/LoginScreen";
 import MapScreen from "../screens/MapScreen";
 import { AuthContext } from "../context/AuthContext";
+import TestScreen from "../screens/TestScreen";
 
 const MainNavigator = () => {
   const Stack = createStackNavigator();

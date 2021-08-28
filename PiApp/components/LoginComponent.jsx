@@ -14,6 +14,8 @@ const LoginComponent = (props) => {
 
   const { authLogin, isSignedIn } = useContext(AuthContext);
 
+
+
   const handleSubmit = async () => {
 		authLogin(email, password)
 			.then(success => {
