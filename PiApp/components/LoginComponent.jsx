@@ -4,15 +4,46 @@ import { View, StyleSheet, TextInput, Alert, Dimensions } from "react-native";
 import { Input, Text, Block, Button, theme } from 'galio-framework';
 
 import colors from "../constants/colors";
+import { AuthContext } from "../context/AuthContext";
 
 const LoginComponent = (props) => {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { authLogin, isSignedIn } = useContext(AuthContext);
+
+  const handleSubmit = async () => {
+		authLogin(email, password)
+			.then(success => {
+				if (success) {
+          console.log("Logged in!");
+				} else {
+					Alert.alert(
+            "Error",
+            "Invalid email or password",
+            [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+            { cancelable: false }
+          );
+				}
+			})
+			.catch(error => {
+				Alert.alert(
+          "Error",
+          "There was an error attempting to login. Please try again.",
+          [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+			})
+  };
+
   return (
         <View style={styles.centerContainer}>
         <View style={styles.inputContainer}>
           <Input
             style={styles.input}
             placeholder="Email"
-            //onChangeText={(text) => setEmail(text)}
+            onChangeText={(text) => setEmail(text)}
             color={theme.COLORS.INPUT}
             placeholderTextColor={theme.COLORS.PLACEHOLDER}
             type='email-address'
@@ -22,7 +53,7 @@ const LoginComponent = (props) => {
             style={styles.input}
             placeholder="Password"
             //secureTextEntry={true}
-            //onChangeText={(text) => setPassword(text)}
+            onChangeText={(text) => setPassword(text)}
             color={theme.COLORS.INPUT}
             placeholderTextColor={theme.COLORS.PLACEHOLDER}
             password 
@@ -30,7 +61,7 @@ const LoginComponent = (props) => {
           />
         </View>
         <Button
-            //onPress={handleSubmit}
+            onPress={handleSubmit}
             color={colors.primary}
             style={styles.button}
             >
