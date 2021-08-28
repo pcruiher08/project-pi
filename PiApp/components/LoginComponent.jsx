@@ -1,12 +1,13 @@
 import React from "react";
 import { useState, useContext } from "react";
 import { View, StyleSheet, TextInput, Alert, Dimensions } from "react-native";
-import { Input, Text, Block, Button, theme } from 'galio-framework';
+import { Input, Text, Block, Button, theme } from "galio-framework";
 
 import colors from "../constants/colors";
 import { AuthContext } from "../context/AuthContext";
 
 const LoginComponent = (props) => {
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +19,8 @@ const LoginComponent = (props) => {
 			.then(success => {
 				if (success) {
           console.log("Logged in!");
+          props.navigation.navigate("map");
+
 				} else {
 					Alert.alert(
             "Error",
@@ -68,7 +71,7 @@ const LoginComponent = (props) => {
               Login
           </Button>
         </View>
-
+  
   );
 };
 
@@ -88,15 +91,14 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "flex-start",
   },
-  button:{
+  button: {
     width: "100%",
     height: 48,
-    marginTop: 35
+    marginTop: 35,
   },
   input: {
     width: "100%",
     height: 48,
-    marginTop: 10
+    marginTop: 10,
   },
-
 });
