@@ -10,10 +10,6 @@ let app = express();
 
 require("dotenv").config();
 
-// Routes
-let authRoutes = require("./routes/auth");
-let authUsers = require("./routes/users");
-
 // Custom dependencies
 let { DATABASE_URL, PORT } = require("./config");
 let middleware = require("./middleware");
@@ -23,8 +19,19 @@ console.log(DATABASE_URL);
 app.use(cors());
 app.use(morgan("dev"));
 
-app.use("/auth", authRoutes);
-app.use("/users", authUsers);
+let routes = ["auth", "users", "cameras", "events"];
+
+for (route of routes) {
+    app.use(`/${route}`, require(`./routes/${route}`));
+}
+
+/*
+// Routes
+app.use("/auth", require("./routes/auth"));
+app.use("/users", require("./routes/users"));
+app.use("/cameras", require("./routes/cameras"));
+app.use("/events", require("./routes/events"));
+*/
 
 let server;
 
