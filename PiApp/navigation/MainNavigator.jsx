@@ -14,7 +14,7 @@ const MainNavigator = () => {
         component={LoginComponent}
       />
       <Stack.Screen
-        name="login"
+        name="map"
         options={{ headerShown: false }}
         component={MapScreen}
       />
