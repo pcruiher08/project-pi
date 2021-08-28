@@ -7,9 +7,7 @@ import colors from "../constants/colors";
 
 const LoginComponent = (props) => {
   return (
-    <View style={styles.screen}>
-      <View style={styles.centerContainer}>
-        <Text h1 style={styles.title}>Login</Text>
+        <View style={styles.centerContainer}>
         <View style={styles.inputContainer}>
           <Input
             style={styles.input}
@@ -38,22 +36,16 @@ const LoginComponent = (props) => {
             >
               Login
           </Button>
-      </View>
-    </View>
+        </View>
+
   );
 };
 
 export default LoginComponent;
 
 const styles = StyleSheet.create({
-  screen: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex:1,
-    backgroundColor: colors.dark
-  },
   centerContainer: {
-    width: "75%",
+    width: "100%",
     height: "50%",
     alignItems: "center",
   },
@@ -69,11 +61,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 48,
     marginTop: 35
-  },
-  title: {
-    
-    color: colors.light,
-    margin: 30
   },
   input: {
     width: "100%",
