@@ -8,8 +8,9 @@ import colors from "../constants/colors";
 import { getEvents } from "../services/events";
 import { TouchableOpacity } from "react-native";
 
-import * as Notifications from 'expo-notifications'
-import Constants from 'expo-constants';
+import * as Notifications from "expo-notifications";
+import * as Speech from "expo-speech";
+import Constants from "expo-constants";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -31,10 +32,9 @@ class MapScreen extends Component {
         latitude: 37.78825,
         longitude: -122.4324,
       },
-      expoPushToken: '',
+      expoPushToken: "",
       notification: false,
       circles: [],
-
     };
   }
 
@@ -57,7 +57,7 @@ class MapScreen extends Component {
     }, 5000);
   }
 
-  async  sendNotification (events) {
+  async sendNotification(events) {
     await this.schedulePushNotification(events);
   }
   componentWillUnmount() {
@@ -65,65 +65,70 @@ class MapScreen extends Component {
   }
 
   handleNotification() {
-    this.registerForPushNotificationsAsync().then(token => this.setState({
+    this.registerForPushNotificationsAsync().then((token) =>
+      this.setState({
         coordinates: this.state.coordinates,
         expoPushToken: token,
         notification: this.state.notification,
-    }));
+      })
+    );
 
-    this.notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      this.setState({
-        coordinates: thi+s.state.coordinates,
-        expoPushToken: this.state.expoPushToken,
-        notification: notification,
+    this.notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        this.setState({
+          coordinates: thi + s.state.coordinates,
+          expoPushToken: this.state.expoPushToken,
+          notification: notification,
+        });
       });
-    });
 
-    this.responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+    this.responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }
 
-  
-  getMessage(events){
+  getMessage(events) {
     let nonlinear = 0;
     let excess = 0;
-    events.forEach(e => {
-      if(e.type=="NONLINEAR_DRIVING"){
-        nonlinear ++;
-      }
-      else{
+    events.forEach((e) => {
+      if (e.type == "NONLINEAR_DRIVING") {
+        nonlinear++;
+      } else {
         excess++;
       }
     });
     let message = " We identified ";
-    if(excess>0){
-      message = message + excess + " drivers exceeding the speed limit"
-      if(nonlinear>0){
-        message += " and " + nonlinear + " non linear drivers."
-      }
-      else{
+    if (excess > 0) {
+      message = message + excess + " drivers exceeding the speed limit";
+      if (nonlinear > 0) {
+        message += " and " + nonlinear + " non linear drivers.";
+      } else {
         message += ".";
       }
-    }
-    else{
-      message = message + nonlinear + " drivers exceeding the speed limit."
+    } else {
+      message = message + nonlinear + " drivers exceeding the speed limit.";
     }
     return message;
-    
   }
 
-  async schedulePushNotification (events) {    
+  async schedulePushNotification(events) {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Nearby risks were detected",
-        body: 'There are ' + events.length + ' risk events nearby.' + this.getMessage(events),
-        data: { data: 'XD' },
+        body:
+          "There are " +
+          events.length +
+          " risk events nearby." +
+          this.getMessage(events),
+        data: { data: "XD" },
       },
       trigger: { seconds: 2 },
     });
@@ -132,34 +137,34 @@ class MapScreen extends Component {
   async registerForPushNotificationsAsync() {
     let token;
     if (Constants.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
+      if (existingStatus !== "granted") {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
       console.log(token);
     } else {
-      alert('Must use physical device for Push Notifications');
+      alert("Must use physical device for Push Notifications");
     }
-  
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: "#FF231F7C",
       });
     }
-  
+
     return token;
   }
-
 
   onLocationChange(event) {
     const nativeEvent = event.nativeEvent;
@@ -211,7 +216,11 @@ class MapScreen extends Component {
         <TouchableOpacity
           activeOpacity={0.5}
           style={{ position: "absolute", bottom: 30, right: 10 }}
-          onPress={() => console.log("sobres perro")}
+          onPress={() => {
+            Speech.speak(
+              "There is 1 risk event nearby. We identified 1 driver exceeding the speed limit."
+            );
+          }}
         >
           <Icon
             reverse
