@@ -172,7 +172,7 @@ class MapScreen extends Component {
       message =
         message +
         excess +
-        (excess > 1 ? " drivers" : "driver") +
+        (excess > 1 ? " drivers" : " driver") +
         " exceeding the speed limit";
       if (nonlinear > 0) {
         message +=
