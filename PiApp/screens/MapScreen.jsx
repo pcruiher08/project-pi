@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 
-import { View, StyleSheet } from "react-native";
-import MapView, { Circle } from "react-native-maps";
+import { View, StyleSheet, Text } from "react-native";
+import MapView, { Callout, Circle, Marker } from "react-native-maps";
 import { Icon } from "react-native-elements";
 import colors from "../constants/colors";
 
 import { getEvents } from "../services/events";
+import { getAddress } from "../services/geo";
 import { TouchableOpacity } from "react-native";
 
 import * as Notifications from "expo-notifications";
@@ -51,7 +52,7 @@ class MapScreen extends Component {
     }, 5000);
   }
 
-  handleEvents(events) {
+  async handleEvents(events) {
     if (events.length > 0) {
       let notiEvents = [];
       const prevEvents = this.state.prevEvents;
@@ -72,12 +73,15 @@ class MapScreen extends Component {
       }
 
       let newCircles = [];
-      events.forEach((event) => {
+      for (let index = 0; index < events.length; ++index) {
+        const event = events[index];
+        const address = await getAddress(event.latitude, event.longitude);
         newCircles.push({
           lat: event.latitude,
           long: event.longitude,
+          address: address["display_name"],
         });
-      });
+      }
       this.setState({ circles: newCircles });
     }
   }
@@ -98,12 +102,12 @@ class MapScreen extends Component {
       })
     );
 
-    this.notificationListener.current = 
-    Notifications.addNotificationReceivedListener((notification) => {
-      this.setState({
-        coordinates: this.state.coordinates,
-        expoPushToken: this.state.expoPushToken,
-        notification: notification,
+    this.notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        this.setState({
+          coordinates: this.state.coordinates,
+          expoPushToken: this.state.expoPushToken,
+          notification: notification,
         });
       });
 
@@ -249,13 +253,25 @@ class MapScreen extends Component {
         >
           {this.state.circles.map((circle, index) => {
             return (
-              <Circle
-                key={index}
-                center={{ latitude: circle.lat, longitude: circle.long }}
-                radius={100}
-                strokeColor={colors.accent}
-                fillColor="rgba(182,35,4,0.5)"
-              />
+              <>
+                <Circle
+                  key={"circle" + index}
+                  center={{ latitude: circle.lat, longitude: circle.long }}
+                  radius={100}
+                  strokeColor={colors.accent}
+                  fillColor="rgba(182,35,4,0.5)"
+                />
+                <Marker
+                  key={"marker" + index}
+                  coordinate={{ latitude: circle.lat, longitude: circle.long }}
+                >
+                  <View style={styles.balloon}>
+                    <Text style={styles.balloonText}>
+                      {circle.address.split(",")[0]}
+                    </Text>
+                  </View>
+                </Marker>
+              </>
             );
           })}
         </MapView>
@@ -289,6 +305,17 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
+  },
+  balloon: {
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 15,
+    borderRadius: 20,
+    backgroundColor: colors.dark,
+  },
+  balloonText: {
+    paddingTop: 5,
+    color: colors.white,
   },
 });
 
