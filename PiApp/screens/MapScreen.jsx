@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 
 import { View, StyleSheet, Text } from "react-native";
-import MapView, { Callout, Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps";
 import { Icon } from "react-native-elements";
 import colors from "../constants/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { getEvents } from "../services/events";
 import { getAddress } from "../services/geo";
@@ -37,11 +38,25 @@ class MapScreen extends Component {
       notification: false,
       circles: [],
       prevEvents: [],
+      popups: true,
+      voice: true,
     };
   }
 
   componentDidMount() {
     this.handleNotifications;
+    this.unsubFocus = this.props.navigation.addListener("focus", () => {
+      AsyncStorage.getItem("@voice").then((v) => {
+        this.setState({
+          voice: JSON.parse(v),
+        });
+      });
+      AsyncStorage.getItem("@popups").then((pop) => {
+        this.setState({
+          popups: JSON.parse(pop),
+        });
+      });
+    });
     this.interval = setInterval(() => {
       getEvents(
         this.state.coordinates.latitude,
@@ -53,6 +68,7 @@ class MapScreen extends Component {
   }
 
   async handleEvents(events) {
+    let newCircles = [];
     if (events.length > 0) {
       let notiEvents = [];
       const prevEvents = this.state.prevEvents;
@@ -72,7 +88,6 @@ class MapScreen extends Component {
         this.sendNotification(notiEvents);
       }
 
-      let newCircles = [];
       for (let index = 0; index < events.length; ++index) {
         const event = events[index];
         const address = await getAddress(event.latitude, event.longitude);
@@ -82,8 +97,8 @@ class MapScreen extends Component {
           address: address["address"]["road"],
         });
       }
-      this.setState({ circles: newCircles });
     }
+    this.setState({ circles: newCircles });
   }
 
   async sendNotification(events) {
@@ -91,6 +106,7 @@ class MapScreen extends Component {
   }
   componentWillUnmount() {
     clearInterval(this.interval);
+    this.unsubFocus();
   }
 
   handleNotification() {
@@ -173,15 +189,19 @@ class MapScreen extends Component {
       (events.length > 1 ? "events" : "event") +
       " nearby." +
       this.getMessage(events);
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: title,
-        body: body,
-        data: { data: "XD" },
-      },
-      trigger: { seconds: 2 },
-    });
-    Speech.speak(title + "." + body);
+    if (this.state.popups) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: title,
+          body: body,
+          data: { data: "XD" },
+        },
+        trigger: { seconds: 2 },
+      });
+    }
+    if (this.state.voice) {
+      Speech.speak(title + "." + body);
+    }
   }
 
   async registerForPushNotificationsAsync() {
@@ -253,7 +273,7 @@ class MapScreen extends Component {
         >
           {this.state.circles.map((circle, index) => {
             return (
-              <>
+              <React.Fragment key={frag + index}>
                 <Circle
                   key={"circle" + index}
                   center={{ latitude: circle.lat, longitude: circle.long }}
@@ -271,14 +291,14 @@ class MapScreen extends Component {
                     </Text>
                   </View>
                 </Marker>
-              </>
+              </React.Fragment>
             );
           })}
         </MapView>
         <TouchableOpacity
           activeOpacity={0.5}
           style={{ position: "absolute", bottom: 30, right: 10 }}
-          onPress={() => console.log("sobres perro")}
+          onPress={() => this.props.navigation.navigate("settings")}
         >
           <Icon
             reverse
@@ -324,7 +344,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -340,7 +360,7 @@ const mapStyle = [
     elementType: "labels.text.stroke",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -384,7 +404,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#263c3f",
+        color: colors.map_streets,
       },
     ],
   },
