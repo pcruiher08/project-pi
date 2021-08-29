@@ -25,7 +25,7 @@ class SimpleMap extends Component {
                 return (
                     <Marker position={[e.latitude, e.longitude]}>
                         <Popup>
-                        A pretty CSS3 popup. <br /> Easily customizable.
+                            {e.street ? e.street : e.type}
                         </Popup>
                     </Marker>
                 )
