@@ -5,6 +5,8 @@ const colors = {
     light: '#EDF2F4',
     primary: '#EF233C',
     accent: '#D90429',
+    map_dark: '#242f3e',
+    map_streets: '#263c3f'
 }
 
 export default colors;

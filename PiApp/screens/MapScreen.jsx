@@ -53,6 +53,7 @@ class MapScreen extends Component {
   }
 
   async handleEvents(events) {
+    let newCircles = [];
     if (events.length > 0) {
       let notiEvents = [];
       const prevEvents = this.state.prevEvents;
@@ -72,18 +73,19 @@ class MapScreen extends Component {
         this.sendNotification(notiEvents);
       }
 
-      let newCircles = [];
+      
       for (let index = 0; index < events.length; ++index) {
         const event = events[index];
         const address = await getAddress(event.latitude, event.longitude);
         newCircles.push({
           lat: event.latitude,
           long: event.longitude,
-          address: address["display_name"],
+          address: address["address"]["road"],
         });
       }
-      this.setState({ circles: newCircles });
+      
     }
+    this.setState({ circles: newCircles });
   }
 
   async sendNotification(events) {
@@ -278,7 +280,7 @@ class MapScreen extends Component {
         <TouchableOpacity
           activeOpacity={0.5}
           style={{ position: "absolute", bottom: 30, right: 10 }}
-          onPress={() => console.log("sobres perro")}
+          onPress={() => this.props.navigation.navigate("settings")}
         >
           <Icon
             reverse
@@ -324,7 +326,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -340,7 +342,7 @@ const mapStyle = [
     elementType: "labels.text.stroke",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -384,7 +386,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#263c3f",
+        color: colors.map_streets,
       },
     ],
   },
