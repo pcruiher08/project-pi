@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useContext } from "react";
-import { View, StyleSheet, TextInput, Alert, Dimensions } from "react-native";
+import { View, StyleSheet, TextInput, Alert, Dimensions, Image } from "react-native";
 import { Input, Text, Block, Button, theme } from "galio-framework";
 
 import colors from "../constants/colors";
@@ -10,9 +10,10 @@ const LoginScreen = (props) => {
   return (
     <View style={styles.screen}>
       <View style={styles.centerContainer}>
-        <Text h1 style={styles.title}>
-          Login
-        </Text>
+        <Image 
+          style={styles.logo}
+          source={require('../assets/logowhite.png')}
+        />
         <LoginComponent navigation={props.navigation} />
       </View>
     </View>
@@ -38,4 +39,8 @@ const styles = StyleSheet.create({
     color: colors.light,
     margin: 30,
   },
+  logo:{
+    height:230,
+    width:230,
+  }
 });
