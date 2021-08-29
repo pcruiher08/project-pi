@@ -152,7 +152,7 @@ class MapScreen extends Component {
         message +
         nonlinear +
         " unusual " +
-        (nonlinear > 1 ? " drivers" : "driver") +
+        (nonlinear > 1 ? "drivers" : "driver") +
         ".";
     }
     return message;
