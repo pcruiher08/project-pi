@@ -1,34 +1,155 @@
 import React, { Component } from "react";
+
 import { View, StyleSheet } from "react-native";
 import MapView from "react-native-maps";
 import { getEvents } from "../services/events";
 
+import * as Notifications from 'expo-notifications'
+import Constants from 'expo-constants';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 class MapScreen extends Component {
   constructor(props) {
     super(props);
+    this.notificationListener = React.createRef();
+    this.responseListener = React.createRef();
+
     this.onLocationChange = this.onLocationChange.bind(this);
     this.state = {
       coordinates: {
         latitude: 37.78825,
         longitude: -122.4324,
       },
+      expoPushToken: '',
+      notification: false,
     };
   }
 
   componentDidMount() {
+    this.handleNotifications;
     this.interval = setInterval(() => {
       getEvents(
         this.state.coordinates.latitude,
         this.state.coordinates.longitude
       ).then((events) => {
-        console.log(events);
+        if(events.length > 0){
+          console.log(events);
+          this.sendNotification(events);
+        }
       });
     }, 5000);
   }
 
+  async  sendNotification (events) {
+    await this.schedulePushNotification(events);
+  }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
+
+  handleNotification() {
+    this.registerForPushNotificationsAsync().then(token => this.setState({
+        coordinates: this.state.coordinates,
+        expoPushToken: token,
+        notification: this.state.notification,
+    }));
+
+    this.notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      this.setState({
+        coordinates: thi+s.state.coordinates,
+        expoPushToken: this.state.expoPushToken,
+        notification: notification,
+      });
+    });
+
+    this.responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }
+
+  
+  getMessage(events){
+    let nonlinear = 0;
+    let excess = 0;
+    events.forEach(e => {
+      if(e.type=="NONLINEAR_DRIVING"){
+        nonlinear ++;
+      }
+      else{
+        excess++;
+      }
+    });
+    let message = " We identified ";
+    if(excess>0){
+      message = message + excess + " drivers exceeding the speed limit"
+      if(nonlinear>0){
+        message += " and " + nonlinear + " non linear drivers."
+      }
+      else{
+        message += ".";
+      }
+    }
+    else{
+      message = message + nonlinear + " drivers exceeding the speed limit."
+    }
+    return message;
+    
+  }
+
+  async schedulePushNotification (events) {    
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Nearby risks were detected",
+        body: 'There are ' + events.length + ' risk events nearby.' + this.getMessage(events),
+        data: { data: 'XD' },
+      },
+      trigger: { seconds: 2 },
+    });
+  }
+
+  async registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    return token;
+  }
+
 
   onLocationChange(event) {
     const nativeEvent = event.nativeEvent;
@@ -39,6 +160,8 @@ class MapScreen extends Component {
         latitude: lat,
         longitude: long,
       },
+      expoPushToken: this.state.expoPushToken,
+      notification: this.state.notification,
     });
     this.map.animateToRegion(
       {
