@@ -32,11 +32,17 @@ const SettingsScreen = (props) => {
 
   useEffect(() => {
     const setValues = async () => {
-      const voiceVal = await AsyncStorage.getItem("@voice");
-      const popVal = await AsyncStorage.getItem("@popups");
-      setVoice(JSON.parse(voiceVal));
-      setPopups(JSON.parse(popVal));
-      setLoading(false);
+      try {
+        const voiceVal = await AsyncStorage.getItem("@voice");
+        const popVal = await AsyncStorage.getItem("@popups");
+        const zoomVal = await AsyncStorage.getItem("@zoom");
+        setVoice(JSON.parse(voiceVal));
+        setPopups(JSON.parse(popVal));
+        setZoom(parseInt(zoomVal));
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
     };
     setValues();
   }, []);
@@ -46,7 +52,11 @@ const SettingsScreen = (props) => {
       firstUpdate.current = false;
       return;
     }
-    AsyncStorage.setItem("@popups", popups.toString());
+    try {
+      AsyncStorage.setItem("@popups", popups.toString());
+    } catch (error) {
+      console.log(error);
+    }
   }, [popups]);
 
   useEffect(() => {
@@ -54,7 +64,11 @@ const SettingsScreen = (props) => {
       firstUpdate.current = false;
       return;
     }
-    AsyncStorage.setItem("@voice", voice.toString());
+    try {
+      AsyncStorage.setItem("@voice", voice.toString());
+    } catch (error) {
+      console.log(error);
+    }
   }, [voice]);
 
   const zooms = ["x0.5", "x1", "x2", "x3"];
@@ -177,10 +191,11 @@ const SettingsScreen = (props) => {
             dropdownStyle={styles.dropdown2DropdownStyle}
             rowStyle={styles.dropdown2RowStyle}
             rowTextStyle={styles.dropdown2RowTxtStyle}
-            defaultValue="x1"
+            defaultValueByIndex={zoom}
             data={zooms}
             onSelect={(selectedItem, index) => {
-              console.log(selectedItem, index);
+              console.log(index);
+              AsyncStorage.setItem("@zoom", index.toString());
             }}
             buttonTextAfterSelection={(selectedItem, index) => {
               // text represented after item is selected

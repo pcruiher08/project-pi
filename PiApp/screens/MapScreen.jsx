@@ -40,6 +40,8 @@ class MapScreen extends Component {
       prevEvents: [],
       popups: true,
       voice: true,
+      latd: 0.002,
+      longd: 0.002,
     };
   }
 
@@ -54,6 +56,21 @@ class MapScreen extends Component {
       AsyncStorage.getItem("@popups").then((pop) => {
         this.setState({
           popups: JSON.parse(pop),
+        });
+      });
+      AsyncStorage.getItem("@zoom").then((zoom) => {
+        this.map.animateToRegion(
+          {
+            latitude: this.state.coordinates.latitude,
+            longitude: this.state.coordinates.longitude,
+            latitudeDelta: zoomConversions[parseInt(zoom)],
+            longitudeDelta: zoomConversions[parseInt(zoom)],
+          },
+          1000
+        );
+        this.setState({
+          latd: zoomConversions[parseInt(zoom)],
+          longd: zoomConversions[parseInt(zoom)],
         });
       });
     });
@@ -252,8 +269,8 @@ class MapScreen extends Component {
       {
         latitude: lat,
         longitude: long,
-        latitudeDelta: 0.002,
-        longitudeDelta: 0.002,
+        latitudeDelta: this.state.latd,
+        longitudeDelta: this.state.longd,
       },
       1000
     );
@@ -314,6 +331,8 @@ class MapScreen extends Component {
 }
 
 export default MapScreen;
+
+const zoomConversions = [0.006, 0.004, 0.002, 0.0009];
 
 const styles = StyleSheet.create({
   screen: {
