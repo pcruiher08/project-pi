@@ -73,7 +73,7 @@ class MapScreen extends Component {
 
     this.notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       this.setState({
-        coordinates: thi+s.state.coordinates,
+        coordinates: this.state.coordinates,
         expoPushToken: this.state.expoPushToken,
         notification: notification,
       });
