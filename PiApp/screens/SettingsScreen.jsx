@@ -4,10 +4,12 @@ import { View, StyleSheet, TextInput, Alert, Dimensions, Switch, TouchableOpacit
 import { Input, Text, Block, Button, theme } from "galio-framework";
 import { Icon } from 'react-native-elements'
 import SelectDropdown from 'react-native-select-dropdown'
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 import colors from "../constants/colors";
 import LoginComponent from "../components/LoginComponent";
 import { AuthContext } from "../context/AuthContext";
+import { color } from "react-native-elements/dist/helpers";
 
 
 const SettingsScreen = (props) => {
@@ -17,9 +19,9 @@ const SettingsScreen = (props) => {
   const [rate, setRate] = useState(30);
   const { authLogout } = useContext(AuthContext);
 
-  const zooms = ["x0.5", "x1", "x2"]
+  const zooms = ["x0.5", "x1", "x2", "x3"]
 
-  const rates = ["1 seg", "10 seg", "30 seg", "60 seg"] //no tengo idea
+  const rates = ["1 seg", "5 seg", "10 seg", "30 seg"] //no tengo idea
 
   return (
     <View style={styles.screen}>
@@ -106,6 +108,17 @@ const SettingsScreen = (props) => {
         <Text style={styles.label}> Zoom </Text>
 
         <SelectDropdown
+        buttonStyle={{backgroundColor: colors.dark, borderWidth: 1, borderRadius: 5,borderColor: colors.light}}
+        buttonTextStyle={{color: colors.light}}
+        renderDropdownIcon={() => {
+          return (
+            <FontAwesome name="chevron-down" color={colors.neutral} size={18} />
+          );
+        }}
+        dropdownIconPosition={"right"}
+        dropdownStyle={styles.dropdown2DropdownStyle}
+        rowStyle={styles.dropdown2RowStyle}
+        rowTextStyle={styles.dropdown2RowTxtStyle}
           defaultValue="x1"
           data={zooms}
           onSelect={(selectedItem, index) => {
@@ -127,7 +140,18 @@ const SettingsScreen = (props) => {
       <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 10}} >
         <Text style={styles.label}> Update rate </Text>
         <SelectDropdown
-          defaultValue="30 seg"
+          buttonStyle={{backgroundColor: colors.dark, borderWidth: 1, borderRadius: 5,borderColor: colors.light}}
+          buttonTextStyle={{color: colors.light}}
+          renderDropdownIcon={() => {
+            return (
+              <FontAwesome name="chevron-down" color={colors.neutral} size={18} />
+            );
+          }}
+          dropdownIconPosition={"right"}
+          dropdownStyle={styles.dropdown2DropdownStyle}
+          rowStyle={styles.dropdown2RowStyle}
+          rowTextStyle={styles.dropdown2RowTxtStyle}
+          defaultValue="5 seg"
           data={rates}
           onSelect={(selectedItem, index) => {
             console.log(selectedItem, index)
@@ -228,5 +252,13 @@ const styles = StyleSheet.create({
   logoutContainer:{
     flexDirection: 'row',
 
-  }
+  },
+  dropdown2DropdownStyle: { backgroundColor: colors.dark },
+  dropdown2RowStyle: { backgroundColor: colors.dark, borderBottomColor: colors.neutral },
+  dropdown2RowTxtStyle: {
+    color: colors.light,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+
 });
