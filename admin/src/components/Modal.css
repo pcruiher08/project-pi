@@ -1,0 +1,11 @@
+.small-modal {
+  max-width: 60% !important;
+  position: relative;
+  top: 5%;
+}
+
+.large-modal {
+  max-width: 80% !important;
+  position: relative;
+  top: 5%;
+}
