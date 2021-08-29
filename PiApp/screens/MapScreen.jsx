@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import { View, StyleSheet, Text } from "react-native";
-import MapView, { Callout, Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps";
 import { Icon } from "react-native-elements";
 import colors from "../constants/colors";
 
