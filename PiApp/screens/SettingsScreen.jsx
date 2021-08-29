@@ -1,14 +1,22 @@
 import React from "react";
 import { useState, useContext } from "react";
-import { View, StyleSheet, TextInput, Alert, Dimensions, Switch, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  Alert,
+  Dimensions,
+  Switch,
+  TouchableOpacity,
+} from "react-native";
 import { Input, Text, Block, Button, theme } from "galio-framework";
-import { Icon } from 'react-native-elements'
-import SelectDropdown from 'react-native-select-dropdown'
+import { Icon } from "react-native-elements";
+import SelectDropdown from "react-native-select-dropdown";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import colors from "../constants/colors";
 import LoginComponent from "../components/LoginComponent";
 import { AuthContext } from "../context/AuthContext";
-
 
 const SettingsScreen = (props) => {
   const [popups, setPopups] = useState(true);
@@ -17,161 +25,170 @@ const SettingsScreen = (props) => {
   const [rate, setRate] = useState(30);
   const { authLogout } = useContext(AuthContext);
 
-  const zooms = ["x0.5", "x1", "x2"]
+  const zooms = ["x0.5", "x1", "x2"];
 
-  const rates = ["1 seg", "10 seg", "30 seg", "60 seg"] //no tengo idea
+  const rates = ["1 seg", "10 seg", "30 seg", "60 seg"]; //no tengo idea
 
   return (
     <View style={styles.screen}>
-      <TouchableOpacity
-      onPress={() => props.navigation.navigate("map")} 
-      >
-      <Icon style={styles.backBtn}
-            name='chevron-left'
-            type='evilicon'
-            color={colors.light}
-            size={60}
-            
-            />
-        </TouchableOpacity>
+      <TouchableOpacity onPress={() => props.navigation.navigate("map")}>
+        <Icon
+          style={styles.backBtn}
+          name="chevron-left"
+          type="evilicon"
+          color={colors.light}
+          size={60}
+        />
+      </TouchableOpacity>
       <View style={styles.centerContainer}>
-          
-
         <Text h3 style={styles.title}>
           Settings
         </Text>
-        <View style={{ marginTop: 20, marginBottom: 15, flexDirection: 'row'}}>
-        
-          <Icon style={styles.sectionIcon}
-              name='notifications'
-              type='material'
-              color={colors.white}
-              size={30}
-            />
-            <Text style={styles.sectionText}>
-            
-                Notifications
-          </Text>
+        <View style={{ marginTop: 20, marginBottom: 15, flexDirection: "row" }}>
+          <Icon
+            style={styles.sectionIcon}
+            name="notifications"
+            type="material"
+            color={colors.white}
+            size={30}
+          />
+          <Text style={styles.sectionText}>Notifications</Text>
         </View>
         <View
           style={{
             borderBottomColor: colors.neutral,
             borderBottomWidth: 1,
-            alignSelf:'stretch'
+            alignSelf: "stretch",
           }}
         />
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 10}} >
-        <Text style={styles.label}> Pop-up notifications</Text>
-        <Switch
-          style={styles.sectionIcon}
-          value={popups}
-          onValueChange={() => setPopups(!popups)}
-          trackColor={{ false: colors.neutral, true: colors.neutral }}
-          thumbColor={popups ? colors.primary : colors.neutral}
-        />
-      </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 12,
+            marginBottom: 10,
+          }}
+        >
+          <Text style={styles.label}> Pop-up notifications</Text>
+          <Switch
+            style={styles.sectionIcon}
+            value={popups}
+            onValueChange={() => setPopups(!popups)}
+            trackColor={{ false: colors.neutral, true: colors.neutral }}
+            thumbColor={popups ? colors.primary : colors.neutral}
+          />
+        </View>
 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 10}} >
-        <Text style={styles.label}> Voice notifications</Text>
-        <Switch
-          style={styles.sectionIcon}
-          value={voice}
-          onValueChange={() => setVoice(!voice)}
-          trackColor={{ false: colors.neutral, true: colors.neutral }}
-          thumbColor={voice ? colors.primary : colors.neutral}
-        />
-      </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 12,
+            marginBottom: 10,
+          }}
+        >
+          <Text style={styles.label}> Voice notifications</Text>
+          <Switch
+            style={styles.sectionIcon}
+            value={voice}
+            onValueChange={() => setVoice(!voice)}
+            trackColor={{ false: colors.neutral, true: colors.neutral }}
+            thumbColor={voice ? colors.primary : colors.neutral}
+          />
+        </View>
 
-      <View style={{ marginTop: 20, marginBottom: 15, flexDirection: 'row'}}>
-        
-          <Icon style={styles.sectionIcon}
-              name='map'
-              type='material'
-              color={colors.white}
-              size={30}
-            />
-            <Text style={styles.sectionText}>
-            
-                Map Display
-          </Text>
+        <View style={{ marginTop: 20, marginBottom: 15, flexDirection: "row" }}>
+          <Icon
+            style={styles.sectionIcon}
+            name="map"
+            type="material"
+            color={colors.white}
+            size={30}
+          />
+          <Text style={styles.sectionText}>Map Display</Text>
         </View>
         <View
           style={{
             borderBottomColor: colors.neutral,
             borderBottomWidth: 1,
-            alignSelf:'stretch'
+            alignSelf: "stretch",
           }}
         />
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 10}} >
-        <Text style={styles.label}> Zoom </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 12,
+            marginBottom: 10,
+          }}
+        >
+          <Text style={styles.label}> Zoom </Text>
 
-        <SelectDropdown
-          defaultValue="x1"
-          data={zooms}
-          onSelect={(selectedItem, index) => {
-            console.log(selectedItem, index)
+          <SelectDropdown
+            defaultValue="x1"
+            data={zooms}
+            onSelect={(selectedItem, index) => {
+              console.log(selectedItem, index);
+            }}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              // text represented after item is selected
+              // if data array is an array of objects then return selectedItem.property to render after item is selected
+              return selectedItem;
+            }}
+            rowTextForSelection={(item, index) => {
+              // text represented for each item in dropdown
+              // if data array is an array of objects then return item.property to represent item in dropdown
+              return item;
+            }}
+          />
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 12,
+            marginBottom: 10,
           }}
-          buttonTextAfterSelection={(selectedItem, index) => {
-            // text represented after item is selected
-            // if data array is an array of objects then return selectedItem.property to render after item is selected
-            return selectedItem
-          }}
-          rowTextForSelection={(item, index) => {
-            // text represented for each item in dropdown
-            // if data array is an array of objects then return item.property to represent item in dropdown
-            return item
-          }}
-        />
+        >
+          <Text style={styles.label}> Update rate </Text>
+          <SelectDropdown
+            defaultValue="30 seg"
+            data={rates}
+            onSelect={(selectedItem, index) => {
+              console.log(selectedItem, index);
+            }}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              // text represented after item is selected
+              // if data array is an array of objects then return selectedItem.property to render after item is selected
+              return selectedItem;
+            }}
+            rowTextForSelection={(item, index) => {
+              // text represented for each item in dropdown
+              // if data array is an array of objects then return item.property to represent item in dropdown
+              return item;
+            }}
+          />
+        </View>
       </View>
-
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginBottom: 10}} >
-        <Text style={styles.label}> Update rate </Text>
-        <SelectDropdown
-          defaultValue="30 seg"
-          data={rates}
-          onSelect={(selectedItem, index) => {
-            console.log(selectedItem, index)
+      <View style={{ flex: 1, alignItems: "center", marginTop: 30 }} o>
+        <TouchableOpacity
+          style={{ marginTop: 20, marginBottom: 15, flexDirection: "row" }}
+          onPress={() => {
+            authLogout();
           }}
-          buttonTextAfterSelection={(selectedItem, index) => {
-            // text represented after item is selected
-            // if data array is an array of objects then return selectedItem.property to render after item is selected
-            return selectedItem
-          }}
-          rowTextForSelection={(item, index) => {
-            // text represented for each item in dropdown
-            // if data array is an array of objects then return item.property to represent item in dropdown
-            return item
-          }}
-        />
-      </View>
-      
-    </View>
-    <View 
-    style={{flex:1, alignItems: 'center', marginTop: 30}}
-    o>
-
-    
-    <TouchableOpacity  
-    style={{ marginTop: 20, marginBottom: 15, flexDirection: 'row'}}
-    onPress={() => {authLogout()}}
-    >
-        
-        <Icon style={styles.sectionIcon}
-            name='logout'
-            type='material'
+        >
+          <Icon
+            style={styles.sectionIcon}
+            name="logout"
+            type="material"
             color={colors.white}
             size={25}
           />
-          <Text style={styles.logout}>
-          
-              LOGOUT
-        </Text>
-      </TouchableOpacity >
-
+          <Text style={styles.logout}>LOGOUT</Text>
+        </TouchableOpacity>
       </View>
-          
     </View>
-
   );
 };
 
@@ -183,7 +200,6 @@ const styles = StyleSheet.create({
     //justifyContent: "center",
     flex: 1,
     backgroundColor: colors.dark,
-    
   },
   centerContainer: {
     marginLeft: 15,
@@ -194,39 +210,38 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
     marginTop: 10,
-    marginBottom: 20
+    marginBottom: 20,
   },
   backBtn: {
     marginTop: 50,
-    alignItems: 'flex-start'
+    alignItems: "flex-start",
   },
 
-  sectionIcon:{
-    marginRight: 10
+  sectionIcon: {
+    marginRight: 10,
   },
-  sectionText:{
+  sectionText: {
     color: colors.white,
     fontSize: 22,
-    textAlign: 'center',
+    textAlign: "center",
   },
-  label:{
+  label: {
     color: colors.light,
     fontSize: 18,
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "flex-start",
   },
-  switch:{
+  switch: {
     //marginRight: 10,
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
   },
-  logout:{
+  logout: {
     color: colors.light,
     fontSize: 18,
-    textAlign:'center' 
+    textAlign: "center",
   },
-  logoutContainer:{
-    flexDirection: 'row',
-
-  }
+  logoutContainer: {
+    flexDirection: "row",
+  },
 });
