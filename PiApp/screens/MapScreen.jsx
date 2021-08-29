@@ -2,7 +2,11 @@ import React, { Component } from "react";
 
 import { View, StyleSheet } from "react-native";
 import MapView, { Circle } from "react-native-maps";
+import { Icon } from "react-native-elements";
+import colors from "../constants/colors";
+
 import { getEvents } from "../services/events";
+import { TouchableOpacity } from "react-native";
 
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -236,12 +240,25 @@ class MapScreen extends Component {
                                     longitude: circle.long,
                                 }}
                                 radius={100}
-                                strokeColor="#B62304"
+                                strokeColor={colors.accent}
                                 fillColor="rgba(182,35,4,0.5)"
                             />
                         );
                     })}
                 </MapView>
+                <TouchableOpacity
+                    activeOpacity={0.5}
+                    style={{ position: "absolute", bottom: 30, right: 10 }}
+                    onPress={() => console.log("sobres perro")}
+                >
+                    <Icon
+                        reverse
+                        reverseColor={colors.dark}
+                        name="settings"
+                        type="material"
+                        color={colors.light}
+                    />
+                </TouchableOpacity>
             </View>
         );
     }
