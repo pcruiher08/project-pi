@@ -25,6 +25,7 @@
     "react-native-maps": "^0.28.0",
     "react-native-paper": "^4.9.2",
     "react-native-push-notification": "^8.0.1",
+    "react-native-select-dropdown": "^1.1.0",
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {

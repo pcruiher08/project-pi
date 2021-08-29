@@ -53,6 +53,7 @@ class MapScreen extends Component {
   }
 
   async handleEvents(events) {
+    let newCircles = [];
     if (events.length > 0) {
       let notiEvents = [];
       const prevEvents = this.state.prevEvents;
@@ -72,7 +73,7 @@ class MapScreen extends Component {
         this.sendNotification(notiEvents);
       }
 
-      let newCircles = [];
+      
       for (let index = 0; index < events.length; ++index) {
         const event = events[index];
         const address = await getAddress(event.latitude, event.longitude);
@@ -82,8 +83,9 @@ class MapScreen extends Component {
           address: address["address"]["road"],
         });
       }
-      this.setState({ circles: newCircles });
+      
     }
+    this.setState({ circles: newCircles });
   }
 
   async sendNotification(events) {
@@ -324,7 +326,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -340,7 +342,7 @@ const mapStyle = [
     elementType: "labels.text.stroke",
     stylers: [
       {
-        color: "#242f3e",
+        color: colors.dark,
       },
     ],
   },
@@ -384,7 +386,7 @@ const mapStyle = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#263c3f",
+        color: colors.map_streets,
       },
     ],
   },
