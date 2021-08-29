@@ -59,19 +59,21 @@ class MapScreen extends Component {
         });
       });
       AsyncStorage.getItem("@zoom").then((zoom) => {
-        this.map.animateToRegion(
-          {
-            latitude: this.state.coordinates.latitude,
-            longitude: this.state.coordinates.longitude,
-            latitudeDelta: zoomConversions[parseInt(zoom)],
-            longitudeDelta: zoomConversions[parseInt(zoom)],
-          },
-          1000
-        );
-        this.setState({
-          latd: zoomConversions[parseInt(zoom)],
-          longd: zoomConversions[parseInt(zoom)],
-        });
+        if (zoom) {
+          this.map.animateToRegion(
+            {
+              latitude: this.state.coordinates.latitude,
+              longitude: this.state.coordinates.longitude,
+              latitudeDelta: zoom ? zoomConversions[parseInt(zoom)] : 2,
+              longitudeDelta: zoom ? zoomConversions[parseInt(zoom)] : 2,
+            },
+            1000
+          );
+          this.setState({
+            latd: zoomConversions[parseInt(zoom)],
+            longd: zoomConversions[parseInt(zoom)],
+          });
+        }
       });
     });
     this.interval = setInterval(() => {
@@ -290,7 +292,7 @@ class MapScreen extends Component {
         >
           {this.state.circles.map((circle, index) => {
             return (
-              <React.Fragment key={frag + index}>
+              <React.Fragment key={"frag" + index}>
                 <Circle
                   key={"circle" + index}
                   center={{ latitude: circle.lat, longitude: circle.long }}
