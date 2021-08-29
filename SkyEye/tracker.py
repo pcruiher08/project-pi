@@ -44,7 +44,8 @@ flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
 
-camID = "612ab564e8bc4deea0b03013"
+camID = "612ad07c51714c72c8d98503"
+# cumbres 612ad07c51714c72c8d98503
 # paco 612ab564e8bc4deea0b03013
 # victor 612a97019e7a5a35f3e1f3d1
 
@@ -299,7 +300,11 @@ def main(_argv):
                 drivingCoefficient = int(straightDistance/distance*100)
                 cv2.putText(frame, str(drivingCoefficient) + "%"+ " good driving",(int(bbox[0]), int(bbox[3]+20)),0, 0.75, (255,255,255),2)
                 loop = asyncio.get_event_loop()
-                if drivingCoefficient < 70 and not drivingAlertSent and pts[track.track_id][j][3] == 0:
+                
+                unusualDriving = drivingCoefficient < 70 and not drivingAlertSent and pts[track.track_id][j][3] == 0
+                fastDriving = drivingCoefficient < 85 and not speedAlertSent and pts[track.track_id][j][4] == 0
+                
+                if unusualDriving and fastDriving:
                     for cuenta in range(10):
                         print("LE HABLE AL ASYNC DE DRIVING")
                     loop.run_until_complete(drivingNotification())
@@ -310,7 +315,7 @@ def main(_argv):
                     drivingAlertSent = True
 
 
-                if drivingCoefficient < 95 and not speedAlertSent and pts[track.track_id][j][4] == 0:
+                if fastDriving and not unusualDriving:
                     for cuenta in range(10):
                         print("LE HABLE AL ASYNC DE SPEED")
                     loop.run_until_complete(speedNotification())
