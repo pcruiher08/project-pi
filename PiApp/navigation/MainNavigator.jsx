@@ -18,15 +18,13 @@ const MainNavigator = () => {
           options={{ headerShown: false }}
           component={LoginScreen}
         />
-      ) :
-      (
+      ) : (
         <Stack.Screen
           name="map"
           options={{ headerShown: false }}
           component={MapScreen}
         />
-      )
-      }
+      )}
     </Stack.Navigator>
   );
 };
