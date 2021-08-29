@@ -79,7 +79,7 @@ class MapScreen extends Component {
         newCircles.push({
           lat: event.latitude,
           long: event.longitude,
-          address: address["display_name"],
+          address: address["address"]["road"],
         });
       }
       this.setState({ circles: newCircles });
