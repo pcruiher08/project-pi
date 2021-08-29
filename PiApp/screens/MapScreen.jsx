@@ -262,7 +262,7 @@ class MapScreen extends Component {
         <TouchableOpacity
           activeOpacity={0.5}
           style={{ position: "absolute", bottom: 30, right: 10 }}
-          onPress={() => console.log("sobres perro")}
+          onPress={() => this.props.navigation.navigate("settings")}
         >
           <Icon
             reverse
