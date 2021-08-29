@@ -35,6 +35,7 @@ class MapScreen extends Component {
       expoPushToken: "",
       notification: false,
       circles: [],
+      prevEvents: [],
     };
   }
 
@@ -45,16 +46,40 @@ class MapScreen extends Component {
         this.state.coordinates.latitude,
         this.state.coordinates.longitude
       ).then((events) => {
-        if (events.length > 0) {
-          this.sendNotification(events);
-          let newCircles = [];
-          events.forEach((event) => {
-            newCircles.push({ lat: event.latitude, long: event.longitude });
-          });
-          this.setState({ circles: newCircles });
-        }
+        this.handleEvents(events);
       });
     }, 5000);
+  }
+
+  handleEvents(events) {
+    if (events.length > 0) {
+      let notiEvents = [];
+      const prevEvents = this.state.prevEvents;
+      events.forEach((event) => {
+        // Check if event has not yet been notified
+        if (!prevEvents.includes(event._id)) {
+          notiEvents.push(event);
+          prevEvents.push(event._id);
+
+          // Update prevEvents with new events
+          this.setState({ prevEvents: prevEvents });
+        }
+      });
+
+      // Send notifications if there are new events
+      if (notiEvents.length > 0) {
+        this.sendNotification(notiEvents);
+      }
+
+      let newCircles = [];
+      events.forEach((event) => {
+        newCircles.push({
+          lat: event.latitude,
+          long: event.longitude,
+        });
+      });
+      this.setState({ circles: newCircles });
+    }
   }
 
   async sendNotification(events) {
@@ -105,33 +130,54 @@ class MapScreen extends Component {
         excess++;
       }
     });
-    let message = " We identified ";
+    let message = " We've identified ";
     if (excess > 0) {
-      message = message + excess + " drivers exceeding the speed limit";
+      message =
+        message +
+        excess +
+        (excess > 1 ? "drivers" : "driver") +
+        " exceeding the speed limit";
       if (nonlinear > 0) {
-        message += " and " + nonlinear + " non linear drivers.";
+        message +=
+          " and " +
+          nonlinear +
+          " unusual " +
+          (nonlinear > 1 ? "drivers" : "driver") +
+          ".";
       } else {
         message += ".";
       }
     } else {
-      message = message + nonlinear + " drivers exceeding the speed limit.";
+      message =
+        message +
+        nonlinear +
+        " unusual " +
+        (nonlinear > 1 ? " drivers" : "driver") +
+        ".";
     }
     return message;
   }
 
   async schedulePushNotification(events) {
+    const title =
+      "Nearby " + (events.length > 1 ? "risks" : "risk") + " detected";
+    const body =
+      "There " +
+      (events.length > 1 ? "are " : "is ") +
+      events.length +
+      " risk " +
+      (events.length > 1 ? "events" : "event") +
+      " nearby." +
+      this.getMessage(events);
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Nearby risks were detected",
-        body:
-          "There are " +
-          events.length +
-          " risk events nearby." +
-          this.getMessage(events),
+        title: title,
+        body: body,
         data: { data: "XD" },
       },
       trigger: { seconds: 2 },
     });
+    Speech.speak(title + "." + body);
   }
 
   async registerForPushNotificationsAsync() {
@@ -216,11 +262,7 @@ class MapScreen extends Component {
         <TouchableOpacity
           activeOpacity={0.5}
           style={{ position: "absolute", bottom: 30, right: 10 }}
-          onPress={() => {
-            Speech.speak(
-              "There is 1 risk event nearby. We identified 1 driver exceeding the speed limit."
-            );
-          }}
+          onPress={() => console.log("sobres perro")}
         >
           <Icon
             reverse
