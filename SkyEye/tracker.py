@@ -5,6 +5,8 @@ import time
 import requests
 import json
 import tensorflow as tf
+import asyncio
+import aiohttp
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -41,6 +43,33 @@ flags.DEFINE_float('score', 0.50, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
+
+camID = "612ab564e8bc4deea0b03013"
+# paco 612ab564e8bc4deea0b03013
+# victor 612a97019e7a5a35f3e1f3d1
+
+async def speedNotification():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://project-pi-api.herokuapp.com/cameras/'+camID) as response:
+            #response = requests.get('https://project-pi-api.herokuapp.com/cameras/612a97019e7a5a35f3e1f3d1')
+            resp = await response.json()
+            query = {"latitude":resp['latitude'],"longitude":resp['longitude'],"direction":42,"type":"EXCESS_SPEED"}
+            #print(query)
+        async with session.post('https://project-pi-api.herokuapp.com/events/create', json= query) as res:
+            #res = requests.post('https://project-pi-api.herokuapp.com/events/create', json=query)
+            print(res)
+
+async def drivingNotification():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://project-pi-api.herokuapp.com/cameras/'+camID) as response:
+            #response = requests.get('https://project-pi-api.herokuapp.com/cameras/612a97019e7a5a35f3e1f3d1')
+            resp = await response.json()
+            query = {"latitude":resp['latitude'],"longitude":resp['longitude'],"direction":42,"type":"NONLINEAR_DRIVING"}
+            #print(query)
+        async with session.post('https://project-pi-api.herokuapp.com/events/create', json=  query) as res:
+            #res = requests.post('https://project-pi-api.herokuapp.com/events/create', json=query)
+            print(res)
+        
 
 def PPdistance(A, B):
     x1 = A[0]
@@ -238,7 +267,7 @@ def main(_argv):
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
             cv2.putText(frame, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
 
-            center = (int(((bbox[0])+(bbox[2]))/2),int(((bbox[1])+(bbox[3]))/2),0)
+            center = (int(((bbox[0])+(bbox[2]))/2),int(((bbox[1])+(bbox[3]))/2),0,0,0)
 
             pts[track.track_id].append(center)
 
@@ -259,24 +288,42 @@ def main(_argv):
                 cv2.line(frame, (pts[track.track_id][1])[0:2], (pts[track.track_id][len(pts[track.track_id])-1][0:2]), (255,0,0), 2)    
                 distance = PPdistance(pts[track.track_id][j], pts[track.track_id][j-1]) + pts[track.track_id][j-1][2]
                 l = list(pts[track.track_id][j])
-                l[len(l) - 1] = distance
+                l[len(l) - 3] = distance
+                l[len(l) - 2] = pts[track.track_id][j-1][3]
+                l[len(l) - 1] = pts[track.track_id][j-1][4]
+
                 pts[track.track_id][j] = tuple(l)
                 print(pts[track.track_id][len(pts[track.track_id])-1])
                 straightDistance = PPdistance(pts[track.track_id][0],pts[track.track_id][len(pts[track.track_id])-1])
                 print("straight distance = ",straightDistance)
                 drivingCoefficient = int(straightDistance/distance*100)
                 cv2.putText(frame, str(drivingCoefficient) + "%"+ " good driving",(int(bbox[0]), int(bbox[3]+20)),0, 0.75, (255,255,255),2)
-
-                if drivingCoefficient < 70 and not drivingAlertSent:
-                    response = requests.get('https://project-pi-api.herokuapp.com/cameras/612a97019e7a5a35f3e1f3d1')
-                    query = {"latitude":response.json()['latitude'],"longitude":response.json()['longitude'],"direction":42,"type":"NONLINEAR_DRIVING"}
-                    print(query)
-                    res = requests.post('https://project-pi-api.herokuapp.com/events/create', json=query)
-                    print(res)
+                loop = asyncio.get_event_loop()
+                if drivingCoefficient < 70 and not drivingAlertSent and pts[track.track_id][j][3] == 0:
+                    for cuenta in range(10):
+                        print("LE HABLE AL ASYNC DE DRIVING")
+                    loop.run_until_complete(drivingNotification())
+                    l = list(pts[track.track_id][j])
+                    l[len(l) - 2] = 1
+                    pts[track.track_id][j] = tuple(l)
+                    
                     drivingAlertSent = True
 
-                #cv2.putText(frame, str(class_names[j]),(int(bbox[0]), int(bbox[1] -20)),0, 5e-3 * 150, (255,255,255),2)
-        # if enable info flag then print details about each track
+
+                if drivingCoefficient < 95 and not speedAlertSent and pts[track.track_id][j][4] == 0:
+                    for cuenta in range(10):
+                        print("LE HABLE AL ASYNC DE SPEED")
+                    loop.run_until_complete(speedNotification())
+            
+                    l = list(pts[track.track_id][j])
+                    l[len(l) - 1] = 1
+                    pts[track.track_id][j] = tuple(l)
+
+                    speedAlertSent = True
+                
+                print(pts[track.track_id][len(pts[track.track_id])-1])
+                
+
             if FLAGS.info:
             #if True:
                 print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
